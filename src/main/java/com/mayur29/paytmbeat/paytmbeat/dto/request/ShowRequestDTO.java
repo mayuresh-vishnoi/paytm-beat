@@ -1,4 +1,4 @@
-package com.mayur29.paytmbeat.paytmbeat.dto;
+package com.mayur29.paytmbeat.paytmbeat.dto.request;
 
 import lombok.Data;
 

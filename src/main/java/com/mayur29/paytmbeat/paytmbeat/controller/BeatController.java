@@ -1,7 +1,6 @@
 package com.mayur29.paytmbeat.paytmbeat.controller;
 
-import com.mayur29.paytmbeat.paytmbeat.dto.ShowRequestDTO;
-import com.mayur29.paytmbeat.paytmbeat.entities.Show;
+import com.mayur29.paytmbeat.paytmbeat.dto.request.ShowRequestDTO;
 import com.mayur29.paytmbeat.paytmbeat.entities.User;
 import com.mayur29.paytmbeat.paytmbeat.service.ShowService;
 import com.mayur29.paytmbeat.paytmbeat.service.UserService;
@@ -31,7 +30,7 @@ public class BeatController {
     }
 
     @GetMapping("/shows/{id}")
-    public ResponseEntity<?> createShow(@PathVariable int id){
+    public ResponseEntity<?> showRecon(@PathVariable int id){
         return new ResponseEntity<>(showService.getShowState(id),HttpStatus.OK);
     }
 

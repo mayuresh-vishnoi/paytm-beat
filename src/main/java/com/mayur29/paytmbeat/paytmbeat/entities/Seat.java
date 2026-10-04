@@ -1,5 +1,6 @@
 package com.mayur29.paytmbeat.paytmbeat.entities;
 
+import com.mayur29.paytmbeat.paytmbeat.enums.SeatStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -11,5 +12,6 @@ public class Seat {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
     private String seatNumber;
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private SeatStatus status;
 }
