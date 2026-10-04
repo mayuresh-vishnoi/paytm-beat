@@ -18,4 +18,12 @@ public class GlobalExceptionHandler {
         body.put("message", ex.getMessage());
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(SeatException.class)
+    public ResponseEntity<Map<String, Object>> handleRuntimeException(SeatException seatException) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("code", seatException.getCode());
+        body.put("message", seatException.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    }
 }

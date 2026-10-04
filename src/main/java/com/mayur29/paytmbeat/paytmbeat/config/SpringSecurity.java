@@ -36,8 +36,8 @@ public class SpringSecurity{
                         .requestMatchers(
                                 "/actuator/health",
                                 "/actuator/health/**"
-                        ).permitAll()// Public paths
-                        .requestMatchers("/paytm-beats/shows").hasRole("ADMIN") // FIXED: hasAuthority maps perfectly to database [ADMIN]
+                        ).permitAll()
+                        .requestMatchers("/paytm-beats/shows").hasRole("ADMIN")
                         .requestMatchers("/paytm-beats/shows/**").authenticated()
                         .anyRequest().authenticated()
                 )

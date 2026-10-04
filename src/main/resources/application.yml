@@ -19,6 +19,33 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  kafka:
+    properties:
+      security.protocol: SASL_SSL
+      sasl.mechanism: PLAIN
+      sasl.jaas.config: org.apache.kafka.common.security.plain.PlainLoginModule required username="7A2XNJCBXW7IWLRC" password="cfltRNJzdKeCGsgX7sWwEALdjIzHQdE2AQiqxPyotaDHoU0eIM9IM3Bg+BtL3DzA";
+
+    consumer:
+      enable-auto-commit: true
+      bootstrap-servers: pkc-l7pr2.ap-south-1.aws.confluent.cloud:9092
+      group-id: paytm_beats_consumer_group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: '*'
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonSerializer
+
+
+    producer:
+      bootstrap-servers: pkc-l7pr2.ap-south-1.aws.confluent.cloud:9092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
 management:
   endpoints:
     web:

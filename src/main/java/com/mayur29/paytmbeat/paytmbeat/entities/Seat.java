@@ -14,4 +14,6 @@ public class Seat {
     private String seatNumber;
     @Enumerated(EnumType.STRING)
     private SeatStatus status;
+    @Column(name = "reservation_id")
+    private String reservationId;
 }
