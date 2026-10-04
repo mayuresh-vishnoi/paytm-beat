@@ -1,5 +1,6 @@
 server:
   port: 8080
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres
@@ -12,7 +13,23 @@ spring:
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
+
   jpa:
     hibernate:
-      ddl_auto: update
-    show_sql: true
+      ddl-auto: update
+    show-sql: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
+
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
+      group:
+        readiness:
+          include: readinessState,db
