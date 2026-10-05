@@ -3,9 +3,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://dpg-db1i63k9v7es73fmgfl0-a:5432/postgrespaytm
+    username: postgresdbadm
+    password: 8oDwrrTn8CVcuzbfqABndNDeWKMRPmz8
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 20
