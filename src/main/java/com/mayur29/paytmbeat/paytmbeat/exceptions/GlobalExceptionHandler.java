@@ -1,5 +1,6 @@
 package com.mayur29.paytmbeat.paytmbeat.exceptions;
 
+import com.mayur29.paytmbeat.paytmbeat.dto.response.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -20,10 +21,15 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(SeatException.class)
-    public ResponseEntity<Map<String, Object>> handleRuntimeException(SeatException seatException) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("code", seatException.getCode());
-        body.put("message", seatException.getMessage());
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
+    public ResponseEntity<ErrorResponse> handleSeatException(SeatException ex) {
+
+        ErrorResponse response = new ErrorResponse(
+                ex.getCode(),
+                ex.getMessage()
+        );
+
+        return ResponseEntity
+                .status(ex.getStatus())
+                .body(response);
     }
 }

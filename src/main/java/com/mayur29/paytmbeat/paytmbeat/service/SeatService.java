@@ -10,17 +10,21 @@ import com.mayur29.paytmbeat.paytmbeat.exceptions.SeatException;
 import com.mayur29.paytmbeat.paytmbeat.repositories.IdempotencyRepository;
 import com.mayur29.paytmbeat.paytmbeat.repositories.SeatRepository;
 import com.mayur29.paytmbeat.paytmbeat.repositories.ShowRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class SeatService {
 
@@ -62,14 +66,16 @@ public class SeatService {
         if (!record.getRequestHash().equals(requestHash)) {
             throw new SeatException(
                     SEATSERV_0002,
-                    "Idempotency key was already used with a different request"
+                    "Idempotency key was already used with a different request",
+                    HttpStatus.CONFLICT
             );
         }
 
         if (record.getStatus() == IdempotencyStatus.IN_PROGRESS) {
             throw new SeatException(
                     SEATSERV_0002,
-                    "Request with this idempotency key is still in progress"
+                    "Request with this idempotency key is still in progress",
+                    HttpStatus.CONFLICT
             );
         }
 
@@ -117,29 +123,48 @@ public class SeatService {
 
         List<Seat> seats =
                 seatRepository.findSeatsForUpdate(showId, seatNumbers);
+        log.info("seats ::"+seats);
+        log.info("Requested showId: {}", showId);
+        log.info("Requested seatNumbers: {}", seatNumbers);
+        log.info("Found seats: {}", seats.stream()
+                .map(Seat::getSeatNumber)
+                .toList());
+        log.info("Before validation: seats.size={}, seatNumbers.size={}",
+                seats.size(), seatNumbers.size());
 
         if (seats.size() != seatNumbers.size()) {
             throw new SeatException(
                     SEATSERV_0001,
-                    "One or more seats do not exist"
+                    "One or more seats do not exist",
+                    HttpStatus.CONFLICT
             );
         }
 
         boolean unavailable = seats.stream()
                 .anyMatch(seat -> seat.getStatus() != SeatStatus.AVAILABLE);
 
+        log.info("Seat statuses: {}", seats.stream()
+                .map(seat -> seat.getSeatNumber() + "=" + seat.getStatus())
+                .toList());
+
+        log.info("Any unavailable seat: {}", unavailable);
+
         if (unavailable) {
             throw new SeatException(
                     SEATSERV_0002,
-                    "One or more seats are unavailable"
+                    "One or more seats are unavailable",
+                    HttpStatus.CONFLICT
             );
         }
+
+        String holdId = holdSeats(seats);
 
         String reservationId = UUID.randomUUID().toString();
 
         seats.forEach(seat -> {
             seat.setStatus(SeatStatus.HELD);
             seat.setReservationId(reservationId);
+            seat.setHoldExpiresAt(Instant.now().plusSeconds(60));
         });
 
         record.setReservationId(reservationId);
@@ -157,5 +182,25 @@ public class SeatService {
         response.setAmount_paise(show.getPrice_paise() * seatNumbers.size());
 
         return response;
+    }
+
+    @Transactional
+    public String holdSeats(List<Seat> seats) {
+
+        String holdId = UUID.randomUUID().toString();
+        Instant expiresAt = Instant.now().plusSeconds(60);
+
+        for (Seat seat : seats) {
+            seat.setStatus(SeatStatus.HELD);
+            seat.setHoldId(holdId);
+            seat.setHoldExpiresAt(expiresAt);
+        }
+        
+        return holdId;
+    }
+
+    @Transactional
+    public int expireHold(String holdId) {
+        return seatRepository.expireHold(holdId);
     }
 }

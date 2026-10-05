@@ -9,6 +9,7 @@ import com.mayur29.paytmbeat.paytmbeat.enums.SeatStatus;
 import com.mayur29.paytmbeat.paytmbeat.exceptions.SeatException;
 import com.mayur29.paytmbeat.paytmbeat.repositories.ShowRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -138,7 +139,8 @@ public class ShowService {
         if (seatNumbers == null || seatNumbers.isEmpty()) {
             throw new SeatException(
                     SeatService.SEATSERV_0001,
-                    "At least one seat must be selected"
+                    "At least one seat must be selected",
+                    HttpStatus.BAD_REQUEST
             );
         }
 
@@ -147,14 +149,16 @@ public class ShowService {
         )) {
             throw new SeatException(
                     SeatService.SEATSERV_0001,
-                    "Seat numbers cannot be null or blank"
+                    "Seat numbers cannot be null or blank",
+                    HttpStatus.BAD_REQUEST
             );
         }
 
         if (seatNumbers.size() != seatNumbers.stream().distinct().count()) {
             throw new SeatException(
                     SeatService.SEATSERV_0001,
-                    "Duplicate seat numbers are not allowed"
+                    "Duplicate seat numbers are not allowed",
+                    HttpStatus.BAD_REQUEST
             );
         }
     }

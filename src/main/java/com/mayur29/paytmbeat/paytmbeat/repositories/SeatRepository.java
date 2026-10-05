@@ -4,6 +4,7 @@ import com.mayur29.paytmbeat.paytmbeat.entities.Seat;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -37,4 +38,25 @@ public interface SeatRepository extends JpaRepository<Seat,Integer> {
     List<String> findSeatNumbersByReservationId(
             @Param("reservationId") String reservationId
     );
+
+    @Modifying
+    @Query(value = """
+    UPDATE seat
+    SET status = 'AVAILABLE',
+        hold_id = NULL,
+        hold_expires_at = NULL
+    WHERE hold_id = :holdId
+      AND status = 'HELD'
+      AND hold_expires_at <= CURRENT_TIMESTAMP
+    """, nativeQuery = true)
+    int expireHold(@Param("holdId") String holdId);
+
+    @Query(value = """
+    SELECT DISTINCT hold_id
+    FROM seat
+    WHERE status = 'HELD'
+      AND hold_id IS NOT NULL
+      AND hold_expires_at <= CURRENT_TIMESTAMP
+    """, nativeQuery = true)
+    List<String> findExpiredHoldIds();
 }
