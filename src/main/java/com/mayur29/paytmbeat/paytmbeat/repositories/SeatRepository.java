@@ -59,4 +59,21 @@ public interface SeatRepository extends JpaRepository<Seat,Integer> {
       AND hold_expires_at <= CURRENT_TIMESTAMP
     """, nativeQuery = true)
     List<String> findExpiredHoldIds();
+
+    @Query(value = """
+    SELECT COUNT(*)
+    FROM seat s
+    JOIN shows sh ON s.seats_group_id = sh.seats_id
+    WHERE sh.id = ?1
+      AND s.reservation_id IN (
+          SELECT ir.reservation_id
+          FROM idempotency_records ir
+          WHERE ir.user_id = ?2
+      )
+      AND s.status = 'HELD'
+""", nativeQuery = true)
+    long countHeldSeatsForUser(
+            @Param("showId") Integer showId,
+            @Param("userId") String userId
+    );
 }

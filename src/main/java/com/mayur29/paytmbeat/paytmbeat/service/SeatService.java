@@ -112,6 +112,17 @@ public class SeatService {
                 .getAuthentication()
                 .getName();
 
+        Long alreadyHeld = seatRepository.countHeldSeatsForUser(showId, userId);
+        int requested = seatNumbers.size();
+
+        if (alreadyHeld + requested > 4) {
+            throw new SeatException(
+                    "SEATSERV0002",
+                    "Maximum 4 tickets allowed per user for this show",
+                    HttpStatus.CONFLICT
+            );
+        }
+
         IdempotencyRecord record = new IdempotencyRecord();
         record.setUserId(userId);
         record.setIdempotencyKey(idempotencyKey);

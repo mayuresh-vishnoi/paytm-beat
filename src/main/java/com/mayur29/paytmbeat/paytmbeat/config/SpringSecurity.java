@@ -32,13 +32,13 @@ public class SpringSecurity{
                 )
 
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/paytm-beats/user/**").permitAll()
+                        .requestMatchers("/user/**").permitAll()
                         .requestMatchers(
                                 "/actuator/health",
                                 "/actuator/health/**"
                         ).permitAll()
-                        .requestMatchers("/paytm-beats/shows").hasRole("ADMIN")
-                        .requestMatchers("/paytm-beats/shows/**").authenticated()
+                        .requestMatchers("/shows").hasRole("ADMIN")
+                        .requestMatchers("/shows/**").authenticated()
                         .anyRequest().authenticated()
                 )
 
